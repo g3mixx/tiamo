@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Naty 💕</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Custom Fonts */
+        .font-caveat { font-family: 'Caveat', cursive; }
+        .font-kalam { font-family: 'Kalam', cursive; }
+
+        /* General UI styling */
+        body {
+            background-color: #0f0f0f;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* Envelope Styles & Animation */
+        #envelope-wrapper {
+            transition: opacity 1s ease, transform 1.2s ease;
+        }
+        
+        .envelope-flap {
+            transition: transform 0.6s ease-in-out;
+            transform-origin: top;
+            perspective: 1000px;
+        }
+        
+        .envelope-flap.open {
+            transform: rotateX(180deg);
+            z-index: 10;
+        }
+
+        /* Letter Reveal Transition */
+        #letter-container {
+            transition: opacity 1.5s ease 0.5s;
+        }
+
+        /* Paper Textures & Layout */
+        .kraft-paper {
+            background-color: #d4b595;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
+            color: #4a331c;
+        }
+
+        .lined-paper {
+            background-color: #fdfbf7;
+            /* Lined paper pattern */
+            background-image: repeating-linear-gradient(transparent 0px, transparent 31px, #a8b8d0 31px, #a8b8d0 32px);
+            background-attachment: local;
+            line-height: 32px;
+            font-size: 21px;
+            padding: 32px 24px;
+        }
+
+        .lined-paper p {
+            margin: 0;
+            min-height: 32px; /* Ensure empty lines maintain grid */
+            padding-top: 2px; /* Visual alignment correction */
+        }
+        
+        /* Adjust for smaller screens */
+        @media (max-width: 640px) {
+            .lined-paper {
+                font-size: 19px;
+            }
+        }
+
+        /* Film Strip Styles */
+        .film-strip-wrapper {
+            float: right;
+            width: 45%;
+            max-width: 140px;
+            margin-left: 16px;
+            margin-bottom: 16px;
+            margin-top: 8px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        @media (min-width: 640px) {
+            .film-strip-wrapper {
+                width: 35%;
+                max-width: 160px;
+                margin-left: 24px;
+            }
+        }
+
+        .film-strip {
+            background-color: #1a1a1a;
+            position: relative;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            padding: 12% 8%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        /* Film strip holes */
+        .film-strip::before, .film-strip::after {
+            content: "";
+            position: absolute;
+            top: 0; bottom: 0;
+            width: 6px;
+            background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 6px, #fff 6px, #fff 12px);
+        }
+        @media (min-width: 640px) {
+            .film-strip::before, .film-strip::after {
+                width: 8px;
+                background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 8px, #fff 8px, #fff 14px);
+            }
+        }
+        .film-strip::before { left: 4px; }
+        .film-strip::after { right: 4px; }
+
+        /* Photo Placeholders */
+        .photo-slot {
+            background-color: #ddd;
+            border: 2px solid #333;
+            transition: transform 0.3s;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+            z-index: 20;
+        }
+        .photo-slot:hover {
+            transform: scale(1.1);
+            z-index: 30;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+
+        /* Audio Controls */
+        .music-btn {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+        }
+        .music-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Hide scrollbar for aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a1a1a; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #444; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #666; 
+        }
+    </style>
+</head>
+<body class="h-screen w-full relative">
+
+    <!-- INITIAL ENVELOPE SCREEN -->
+    <div id="envelope-wrapper" class="absolute inset-0 flex items-center justify-center bg-[#0a0a0a] z-50">
+        <div class="relative w-80 h-52 sm:w-96 sm:h-64 bg-[#111] shadow-[0_20px_50px_rgba(0,0,0,0.7)] cursor-pointer group" onclick="openEnvelope()">
+            <!-- Inside of envelope -->
+            <div class="absolute inset-0 bg-[#222]"></div>
+            
+            <!-- Letter poking out slightly -->
+            <div class="absolute top-2 left-4 right-4 h-full bg-[#d4b595] rounded-t opacity-0 group-hover:opacity-100 group-hover:-translate-y-4 transition-all duration-500 flex justify-center pt-4">
+                <span class="font-kalam text-xl font-bold text-[#4a331c]">Naty 💕</span>
+            </div>
+
+            <!-- Envelope structure using borders -->
+            <div class="absolute inset-0 z-10 pointer-events-none" style="
+                border-left: 160px solid #1a1a1a;
+                border-right: 160px solid #1a1a1a;
+                border-bottom: 110px solid #262626;
+                border-top: 110px solid transparent;
+            "></div>
+
+            <!-- Top Flap (Animated) -->
+            <div id="top-flap" class="envelope-flap absolute top-0 left-0 w-full h-full z-20 pointer-events-none" style="
+                border-left: 160px solid transparent;
+                border-right: 160px solid transparent;
+                border-top: 115px solid #333;
+                border-bottom: 115px solid transparent;
+            "></div>
+            
+            <!-- Sticky Note Label -->
+            <div class="absolute bottom-6 left-0 w-full flex justify-center z-30 pointer-events-none">
+                <div class="bg-[#fef9c3] text-[#333] px-6 py-2 shadow-lg transform -rotate-3 font-caveat flex flex-col items-center border border-yellow-200">
+                    <span class="text-2xl font-bold">Para Naty 💕</span>
+                    <span class="text-sm">(Haz click para abrir)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN LETTER CONTENT (Hidden initially) -->
+    <div id="letter-container" class="hidden opacity-0 h-full w-full bg-[#151515] p-4 sm:p-8 overflow-y-auto">
+        
+        <!-- Center wrapper -->
+        <div class="max-w-4xl mx-auto flex flex-col relative mt-4 pb-20">
+            
+            <!-- Black Card Base / Text Container -->
+            <div class="bg-[#1a1a1a] p-3 sm:p-6 rounded-lg shadow-2xl flex flex-col w-full">
+                
+                <!-- TOP SECTION: Kraft Paper -->
+                <div class="kraft-paper p-6 sm:p-10 rounded-t shadow-inner font-kalam">
+                    <h1 class="text-3xl sm:text-4xl font-bold mb-4">Para Naty 💕:</h1>
+                    <p class="text-lg sm:text-xl leading-relaxed">
+                        hoy cumplimos siete meses juntos, siete meses desde que comenzó oficialmente la historia más bonita que he tenido la suerte de vivir, y hoy ya tenía una carta preparada para ti, la hice el finde jeje, pero después de lo que hablamos hoy decidí cambiarla, no porque lo que había escrito antes fuera menos importante o me valiera keso, fue porque hay algo que quiero decirte y que en este momento considero mucho más importante que cualquier otra cosa, quiero hablar de nosotros, de ti, de mí y de lo muchísimo que te amo.
+                    </p>
+                </div>
+
+                <!-- BOTTOM SECTION: Lined Paper -->
+                <div class="lined-paper rounded-b shadow-inner font-kalam text-[#2d2d2d] flex-1">
+                    
+                    <!-- WRAPPED RESPONSIVE FILM STRIP (Floats Right) -->
+                    <div class="film-strip-wrapper">
+                        <!-- Vintage Camera SVG -->
+                        <div class="flex justify-center mb-[-10px] relative z-20 drop-shadow-xl">
+                            <svg width="70" height="55" viewBox="0 0 100 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <!-- Camera Body -->
+                                <rect x="10" y="25" width="80" height="50" rx="6" fill="#2d2d2d" stroke="#111" stroke-width="2"/>
+                                <rect x="15" y="45" width="70" height="25" fill="#1a1a1a"/>
+                                <!-- Flash/Top Part -->
+                                <path d="M 30 25 L 35 15 L 65 15 L 70 25 Z" fill="#3d3d3d" stroke="#111" stroke-width="2"/>
+                                <!-- Lens -->
+                                <circle cx="50" cy="50" r="18" fill="#4a4a4a" stroke="#111" stroke-width="3"/>
+                                <circle cx="50" cy="50" r="12" fill="#111"/>
+                                <circle cx="53" cy="47" r="4" fill="#ffffff" opacity="0.4"/>
+                                <!-- Buttons -->
+                                <rect x="18" y="18" width="10" height="7" rx="2" fill="#555" stroke="#111"/>
+                                <circle cx="80" cy="20" r="4" fill="#bb2222" stroke="#111"/>
+                            </svg>
+                        </div>
+
+<!-- Film Strip Container -->
+<div class="film-strip rounded-sm border border-black z-10">
+    <!-- Photo Slots -->
+    <div class="photo-slot bg-[#1a1a1a] flex items-center justify-center overflow-hidden">
+        <img src="foto1.jpg" alt="Mensaje 1" class="w-full h-full object-contain rounded-sm">
+    </div>
+    <div class="photo-slot bg-[#1a1a1a] flex items-center justify-center overflow-hidden">
+        <img src="foto2.jpg" alt="Mensaje 2" class="w-full h-full object-contain rounded-sm">
+    </div>
+    <div class="photo-slot bg-[#1a1a1a] flex items-center justify-center overflow-hidden">
+        <img src="foto3.jpg" alt="Mensaje 3" class="w-full h-full object-contain rounded-sm">
+    </div>
+    <div class="photo-slot bg-[#1a1a1a] flex items-center justify-center overflow-hidden">
+        <img src="foto4.jpg" alt="Mensaje 4" class="w-full h-full object-contain rounded-sm">
+    </div>
+</div>
+                    <p>hoy me dijiste algo que se quedó dando vueltas en mi cabeza, lo vine pensando todo el camino, me hiciste saber que últimamente no te has sentido tan amada como antes, que sientes que ya no me emociono de la misma manera, que ya no intento conquistarte, que he dejado de hacer algunas de esas pequeñas cosas que antes te hacían sentir tan especial, o que simplemente ya me vales keso, y siento muy feo que pienses que es así, porque si hay algo que siempre me importará es tu felicidad y la manera en la que te sientes conmigo.</p><p><br></p>
+                    
+                    <p>quiero empezar diciéndote que nunca tengas que preguntarte si todavía me emociona verte, si todavía me muero de ganas de besarte, si todavía me parece increíble que seas mi novia, si me vuelvo loco por ti, si me derrito por ti, porque la respuesta siempre será sí, mil veces sí, eres la mujer de mi vida, la divinidad hecha persona, la perfección hecha mujer, eres mi novia y yo tu novio, y no sabes lo feliz que me hace poder decir eso, y entiendo que no solo es importante que yo lo sepa, sino que tú lo sientas, porque de nada sirve que yo tenga todo este amor dentro de mí si no logro demostrártelo como te mereces.</p><p><br></p>
+                    
+                    <p>y quisiera empezar por el inicio jeje, tal como en los libros, creo que te he hablado muchísimo de este día, pero no tanto de cómo me sentí.</p><p><br></p>
+                    
+                    <p>el 14 de noviembre de 2025.</p><p><br></p>
+                    
+                    <p>no sé si aún recuerdes con claridad ese día, pero yo lo recuerdo como si hubiera sido ayer, podría volver a vivirlo en mi mente y ciertamente es algo que hago siempre, porque es uno de esos recuerdos que quisiera conservar para toda la vida.</p><p><br></p>
+                    
+                    <p>ese día me quedé platicando contigo y, sin darme cuenta, ocurrió algo que cambiaría mi vida para siempre, me di cuenta de que estaba profundamente enamorado de ti, y no hablo de que simplemente me gustaras muchísimo o de que me parecieras la mujer más bonita del mundo, porque eso ya lo sabía, y siempre lo he sabido, hablo de algo muchísimo más grande, algo que ni siquiera sabía que era posible sentir por otra persona.</p><p><br></p>
+                    
+                    <p>recuerdo la emoción que tenía, recuerdo cómo volví a mi casa sabiendo que había conectado contigo como con nadie, sintiendo algo que jamás había sentido, una emoción tan bonita que ni siquiera sabía cómo explicar, fuiste como una droga para mí, desde ese día me sentía adicto a ti, a tu voz, a tus mensajes, a tu risa, a tu forma de ser, a absolutamente todo lo que tuviera que ver contigo.</p><p><br></p>
+                    
+                    <p>fue raro darme cuenta de que me había perdido completamente en ti, en tus ojos, en tu sonrisa, en tu forma de hablar, en tu manera de reírte, en cada pequeño detalle que definía a Natalia Bailón, porque de pronto había una persona que ocupaba mis pensamientos de una manera que nunca antes había experimentado, y lo más bonito es que no quería dejar de pensar en ella.</p><p><br></p>
+                    
+                    <p>todavía recuerdo cómo se sentía recibir un mensaje tuyo, cómo me emocionaba ver tu nombre en mi pantalla, cómo sonreía leyendo las cosas que me decías, cómo un simple «emicoco» podía hacerme tan feliz, y no sabes la ternura que me da volver a leer nuestros mensajes del principio, pensar en esas dos personitas que se estaban enamorando sin saber todo lo que les esperaba.</p><p><br></p>
+                    
+                    <p>senti y siento que ya no podía imaginar un solo día sin tu voz, sin tu figura, sin tu risa, sin saber de ti, y lo más bonito es que todos los días lo sigo sintiendo, porque desde aquel noviembre no ha existido un solo momento en el que haya dejado de querer tenerte en mi vida.</p><p><br></p>
+                    
+                    <p>había encontrado una conexión tan bonita, tan intensa y tan especial que me parecía imposible dejarla pasar, y ese día entendí algo, no quería que fueras solamente una persona más en mi vida, quería, y quiero siempre, que fueras la persona con la que pudiera compartirla.</p><p><br></p>
+                    
+                    <p>no sabía exactamente qué nos esperaba, siempre he pensado que el futuro es incierto, no sabía cuántas cosas íbamos a vivir, cuántas veces nos íbamos a reír a carcajadas porque tenemos autismo xdxdxd, cuántos abrazos nos daríamos, cuántos besos nos robaríamos ni cuántos recuerdos terminaríamos construyendo, tampoco sabía todo lo que aprenderíamos juntos, todas las cosas que descubriríamos del otro ni lo increíblemente cercanos que llegaríamos a ser.</p><p><br></p>
+                    
+                    <p>pero sí sabía algo.</p><p><br></p>
+                    
+                    <p>quería que fueras tú.</p><p><br></p>
+                    
+                    <p>y, casi un año después, sigo queriendo exactamente lo mismo.</p><p><br></p>
+                    
+                    <p>a veces pienso en el niño que estaba tan emocionado por hablar contigo, que buscaba cualquier oportunidad para acercarse a ti, que sonreía al recibir uno de tus mensajes, que encontraba cualquier excusa para demostrarte lo mucho que le gustabas, y es muy bonito pensar que sigue siendo así, porque ese niño sigo siendo yo, sigo siendo tu emicoco, el mismo que se enamoró perdidamente de ti en noviembre y todos los días </p><p><br></p>
+                    
+                    <p>y creo que también hay algo muy bonito que a veces olvidamos cuando pensamos en cómo éramos antes, porque nuestro amor no se ha quedado detenido en esos primeros días, hemos crecido muchísimo juntos.</p><p><br></p>
+                    
+                    <p>ahora tenemos muchísima confianza, complicidad, una cercanía que jamás había imaginado y una manera tan de nosotros de ser nosotros, de ser los más chistosos siempre 😎, de entender nuestras bromas, de reírnos de absolutamente cualquier cosa, de poder ser nosotros mismos sin miedo a nada, nos conocemos de una manera tan íntima y tan bonita que a veces me parece increíble pensar que hace un año éramos dos personas que apenas estaban comenzando a conocerse.</p><p><br></p>
+                    
+                    <p>hemos conocido versiones de nosotros que ni siquiera sabíamos que existían, hemos construido nuestra propia manera de amarnos, de acompañarnos y de estar juntos, y eso es algo que valoro muchísimo.</p><p><br></p>
+                    
+                    <p>porque me enamoré profundamente de la mujer que conocí hace un año, pero estoy todavía más enamorado de la novia que conozco hoy.</p><p><br></p>
+                    
+                    <p>y eso es algo que quiero que tengas muy presente, mi vida, porque aunque nuestro amor haya crecido y cambiado con el tiempo, eso jamás ha significado que haya dejado de emocionarme por ti.</p><p><br></p>
+                    
+                    <p>nunca pienses te tengo asegurada y como eres mi novia no debí esforzarme</p><p><br></p>
+                    
+                    <p>jamás he pensado en ti de esa manera.</p><p><br></p>
+                    
+                    <p>tú no eres alguien a quien conquisté y después dejé de intentar enamorar.</p><p><br></p>
+                    
+                    <p>eres la persona a la que quiero seguir conquistando todos los días de mi vida, como te he dicho desde el principio, quiero enamorarte cada día de mi vida, hasta que ya no esté aquí, y cuando lleguemos a estar viejitos, quiero seguir buscando maneras de hacerte sonreír como lo hacía aquel emi coquito que apenas estaba empezando a conocerte.</p><p><br></p>
+                    
+                    <p>y no quiero que esta carta sean solo promesas bonitas que se queden guardadas quiero que sea el comienzo de algo que realmente puedas experimentar, que puedas sentir, que puedas recordar y que algún día podamos ver y sonreír </p><p><br></p>
+                    
+                    <p>porque lo pensé mucho.</p><p><br></p>
+                    
+                    <p>siempre me han encantado esas películas románticas que hemos visto juntos, esas historias en las que el protagonista está tan enamorado que hace cosas que parecen una locura, en las que busca cualquier manera de demostrar su amor, en las que no se rinde JAMÁS, en las que pareciera que todo el universo se acomoda para que dos personas puedan estar juntas.</p><p><br></p>
+                    
+                    <p>y es que yo siempre siento que estoy viviendo una de esas películas contigo, pero muchísimo más cute, porque en las películas uno ve a dos personas enamorarse y sueña con tener algo así, pero yo no tengo que soñarlo, yo tengo a la mujer de mis sueños conmigo.</p><p><br></p>
+                    
+                    <p>y si en esas películas el macho hace hasta lo imposible para enamorar a la mujer que ama, pues tengo que seguir el ejemplo.</p><p><br></p>
+                    
+                    <p>porque además, qué clase de protagonista sería si después de conseguir estar con el amor de su vida dejara de intentar enamorarla????</p><p><br></p>
+                    
+                    <p>así que quiero conquistarte de nuevo, y no porque ya no me ames o porque quiera que nuestra historia comience desde cero, sino porque tengo que cumplir mi promesa, porque quiero seguir haciendo lo que siempre he querido hacer, enamorarte todos los días, de todas las maneras posibles, durante toda nuestra vida.</p><p><br></p>
+                    
+                    <p>y quiero comenzar esta misma semana.</p><p><br></p>
+                    
+                    <p>porque noviembre no es un mes cualquiera para nosotros.</p><p><br></p>
+                    
+                    <p>fue en noviembre cuando comenzamos a conocernos de una manera diferente, cuando nuestras conversaciones empezaron a significar algo más, cuando comenzamos a emocionarnos por el otro, cuando sin saberlo estábamos escribiendo las primeras experiencias de nuestra larguísima relación.</p><p><br></p>
+                    
+                    <p>y dentro de muy poquitos días se cumplirá un año de aquel 14 de noviembre en el que comprendí que estaba enamorado de ti.</p><p><br></p>
+                    
+                    <p>qué bonito sería que este noviembre, un año después, pudiera hacerte sentir una vez más toda esa emoción con la que comenzó lo nuestro, que pudieras volver a emocionarte con mis mensajitos, con mis detalles, con mis cartas, con mis canciones, con las pequeñas cosas que hice para conquistarte.</p><p><br></p>
+                    
+                    <p>aunque esta vez hay una diferencia.</p><p><br></p>
+                    
+                    <p>hace un año no sabía si me ibas a amar, no sabía cómo iba a ser lo nuestro, no sabía si algún día podría llamarte mi novia, solamente sabía que estaba perdidamente enamorado de Natalia Bailón y que quería hacer todo lo posible para estar con ella.</p><p><br></p>
+                    
+                    <p>hoy quiero enamorar, una y otra vez, a la mujer con la que sueño casarme, y como te dije hoy, con la que me voy a casar.</p><p><br></p>
+                    
+                    <p>porque después de todo lo que hemos vivido, estoy más seguro que nunca de que quiero construir mi futuro a tu lado.</p><p><br></p>
+                    
+                    <p>quiero seguir conociéndote, seguir creciendo contigo, seguir riéndonos de nuestras autistadas, seguir teniendo esas conversaciones que solamente nosotros entendemos, seguir descubriendo nuevas cosas de ti, seguir escuchando tus historias, seguir aprendiendo de ti y seguir enamorándome de cada una de las versiones de Natalia que me toque conocer a lo largo de nuestra vida.</p><p><br></p>
+                    
+                    <p>quiero vivir muchísimos noviembres contigo, muchos november rains, quiero que noviembre siempre sea nuestro mes, ese mes en el que podamos recordar cómo comenzó todo, cómo dos personitas que apenas se conocían terminaron convirtiéndose en algo tan bonito.</p><p><br></p>
+                    
+                    <p>quiero que algún día podamos mirar atrás y recordar cómo dos desconocidos que comenzaron a hablarse terminaron construyendo una vida entera juntos.</p><p><br></p>
+                    
+                    <p>imagínate eso, mi vida, nosotros dentro de muchísimos años, recordando aquellos primeros mensajes, nuestros apodos, nuestras primeras conversaciones, nuestra primera cita, nuestros primeros besos, y pensar que todo eso fue el inicio de una vida entera de recuerdos.</p><p><br></p>
+                    
+                    <p>y también quiero aprender a amarte cada vez mejor.</p><p><br></p>
+                    
+                    <p>porque amar a alguien no significa hacer todo perfectamente, significa escuchar, comprender, reconocer cuando algo puede mejorar y tener las ganas de hacerlo, porque al final el amor no solamente está en todas esas palabras bonitas que podemos decirnos, sino también en las cosas que hacemos para demostrarlo.</p><p><br></p>
+                    
+                    <p>y yo tengo todas esas ganas contigo.</p><p><br></p>
+                    
+                    <p>no quiero volver a ser exactamente el mismo de hace un año, porque ese emicoco todavía no sabía todo lo que hoy sé de ti, ni había vivido la mitad de las cosas maravillosas que hemos compartido, y aunque me encanta recordar cómo éramos antes, también me encanta pensar en cuánto hemos crecido.</p><p><br></p>
+                    
+                    <p>quiero ser alguien todavía mejor para ti.</p><p><br></p>
+                    
+                    <p>quiero conservar toda esa ilusión del principio, pero acompañarla con el amor, la confianza, la complicidad y la seguridad que hemos construido durante este tiempo.</p><p><br></p>
+                    
+                    <p>quiero que tengas las dos cosas, la emoción de sentirte conquistada y la tranquilidad de sentirte profundamente amada.</p><p><br></p>
+                    
+                    <p>quiero que sigas teniendo maripositas cuando te dedique una canción, pero también quiero que sientas esa paz tan bonita de saber que tienes a alguien que te ama, te escucha, te cuida y quiere estar contigo siempre.</p><p><br></p>
+                    
+                    <p>y quiero decirte algo más.</p><p><br></p>
+                    
+                    <p>si alguna vez no correspondo uno de tus abrazos de la manera en que esperabas, si alguna vez soy menos expresivo o si hay algún momento en el que no demuestro todo lo que siento, nunca quiero que eso te haga pensar que me estás dejando de gustar, porque jamás será así.</p><p><br></p>
+                    
+                    <p>me sigues encantando.</p><p><br></p>
+                    
+                    <p>me sigue pareciendo increíble tu sonrisa, me sigue emocionando verte, me siguen fascinando tus besos y me sigue haciendo feliz saber que eres tú quien camina a mi lado, me sigues derritiendo, me sigues volviendo loco, me sigues pareciendo la mujer más hermosa que mis ojos han tenido la suerte de ver.</p><p><br></p>
+                    
+                    <p>y aunque a veces haya momentos en los que no exprese todo eso como debería, quiero aprender a hacerlo mejor, porque no quiero que tengas que adivinar cuánto te amo.</p><p><br></p>
+                    
+                    <p>quiero que puedas sentirlo.</p><p><br></p>
+                    
+                    <p>quiero que cuando te abrace sientas que no existe ningún otro lugar en el mundo en el que quisiera estar, que cuando te bese sepas que sigo teniendo las mismas ganas de besarte que cuando apenas comenzábamos, que cuando te mire puedas reconocer a emicoco que se enamoró profundamente de ti hace casi un año.</p><p><br></p>
+                    
+                    <p>y voy a esforzarme para que esas cosas no solamente estén dentro de mi corazón, sino que también las puedas ver en mis acciones.</p><p><br></p>
+                    
+                    <p>porque mereces sentirte amada, no solamente escuchar que lo eres.</p><p><br></p>
+                    
+                    <p>y porque, si hay algo que siempre te he demostrado, es que cuando algo me importa de verdad, no me rindo fácilmente.</p><p><br></p>
+                    
+                    <p>y tú, mi amor, eres muchísimo más que algo que me importa.</p><p><br></p>
+                    
+                    <p>eres mi persona favorita, mi compañera, mi mejor amiga, mi amor, mi niña preciosa, mi eneve, la mujer de mi vida y uno de los sueños más bonitos que se me han cumplido.</p><p><br></p>
+                    
+                    <p>no quiero que pienses que estoy haciendo esto solamente porque hoy me dijiste cómo te sentías, lo hago porque me importa escucharte, porque quiero cuidar lo nuestro, porque quiero que nuestra relación sea cada vez más bonita y porque todavía tengo muchísimas maneras de demostrarte cuánto te amo.</p><p><br></p>
+                    
+                    <p>gracias por decírmelo y por tener la confianza de hablarlo conmigo, gracias por confiar en mí lo suficiente como para contarme lo que te estaba doliendo, incluso si no era algo fácil de decir.</p><p><br></p>
+                    
+                    <p>quiero que siempre podamos hablar así, quiero que siempre tengas la confianza de decirme cuando algo te hace sentir mal, porque te amo tanto que jamás quisiera que te quedaras guardando algo que pudiéramos solucionar juntos.</p><p><br></p>
+                    
+                    <p>y te prometo que voy a hacer mi parte para que las cosas cambien, para bien, no porque nuestro amor esté desapareciendo, sino porque quiero que nunca dejemos de cuidarlo.</p><p><br></p>
+                    
+                    <p>y hay algo que quisiera que recordaras siempre.</p><p><br></p>
+                    
+                    <p>el emicoco que se enamoró de ti aquel 14 de noviembre sigue aquí.</p><p><br></p>
+                    
+                    <p>sigue siendo el mismo niño que se emocionaba con tus mensajes, el que se derretía cuando le hablabas bonito, el que quería pasar todo el tiempo posible contigo, el que sentía que había encontrado a alguien completamente diferente a todas las demás personas.</p><p><br></p>
+                    
+                    <p>y si pudiera regresar a ese día, si pudiera encontrarme con aquel emicoco que volvía a su casa sintiendo que acababa de conocer al amor de su vida, me encantaría poder decirle todo lo que nos esperaba.</p><p><br></p>
+                    
+                    <p>le diría que sí, que esa nub que tanto le gusta se convertirá en su novia, que podrán abrazarse, besarse, reírse juntos de las cosas más tontas del universo, que van a construir una confianza preciosa y que algún día estará escribiéndole una carta por sus siete meses juntos.</p><p><br></p>
+                    
+                    <p>y estoy seguro de que sería el pro más feliz del mundo.</p><p><br></p>
+                    
+                    <p>quiero que puedas mirar nuestro presente y sentirte todavía más amada que en aquellos primeros días.</p><p><br></p>
+                    
+                    <p>y aunque hoy cumplimos siete meses, siento que nuestra historia lleva muchísimo más tiempo escribiéndose, porque antes de ser tu novio ya era quien se moría de ganas de estar contigo, ese emicoco que se emocionaba cuando le decías cosas bonitas, cuando le ponías apodos, cuando le demostrabas que quizá también estaba comenzando a gustarte.</p><p><br></p>
+                    
+                    <p>y pensar que todo comenzó con algo tan sencillo como un mensaje, con esas conversaciones que poco a poco se fueron convirtiendo en lo más bonito de mis días.</p><p><br></p>
+                    
+                    <p>a veces quisiera volver a vivir esos momentos, no para cambiar nada, sino simplemente para volver a sentir por primera vez esa emoción tan inmensa de estar conociéndote.</p><p><br></p>
+                    
+                    <p>pero entonces me doy cuenta de algo muchísimo más bonito.</p><p><br></p>
+                    
+                    <p>no necesito regresar al pasado para volver a sentir todo eso, porque la persona que me hacía sentir así sigue estando frente a mí.</p><p><br></p>
+                    
+                    <p>sigues siendo tú.</p><p><br></p>
+                    
+                    <p>la niña por la que me emocionaba tanto, la que me hacía sonreír mirando una pantalla, la que convirtió un noviembre cualquiera en uno de los meses más importantes de mi vida.</p><p><br></p>
+                    
+                    <p>solamente que ahora tengo la fortuna de poder llamarte mi novia y que siento todos los días </p><p><br></p>
+                    
+                    <p>y no sabes cuánto te amo por eso.</p><p><br></p>
+                    
+                    <p>no quiero que esta sea solamente una carta de aniversario, quiero que sea también una forma de recordarte que lo nuestro es una historia que todavía estamos escribiendo, y que yo quiero seguir llenándola de momentos bonitos, de detalles, de canciones, de cartas, de flores, de risas, de besos, de abrazos y de absolutamente todas esas pequeñas cosas que hacen que nuestro amor sea tan especial.</p><p><br></p>
+                    
+                    <p>quiero seguir conquistándote cuando cumplamos ocho meses, cuando cumplamos un año, cuando llevemos cinco años juntos, cuando llevemos veinte, cuando estemos casados, cuando seamos viejitos y sigamos riéndonos de nuestras tonterías.</p><p><br></p>
+                    
+                    <p>porque nunca quiero dejar de tener ganas de enamorarte.</p><p><br></p>
+                    
+                    <p>no quiero que vuelvas a enamorarte de mí porque hayas dejado de hacerlo, quiero que nunca dejes de encontrar nuevas razones para seguir enamorándote.</p><p><br></p>
+                    
+                    <p>y te prometo que voy a esforzarme para darte esas razones.</p><p><br></p>
+                    
+                    <p>feliz siete meses, mi vida, gracias por ser la mujer más maravillosa que he conocido, gracias por aquellos primeros mensajes, por aquella noche de noviembre, por todos nuestros recuerdos, por cada risa, por cada abrazo y por hacerme sentir que encontré a la persona con la que quiero compartir el resto de mi vida.</p><p><br></p>
+                    
+                    <p>te amo con todo mi corazón.</p><p><br></p>
+                    
+                    <p>te amaba cuando apenas soñaba con poder besarte.</p><p><br></p>
+                    
+                    <p>te amo ahora que tengo la fortuna de hacerlo.</p><p><br></p>
+                    
+                    <p>y quiero seguir amándote y conquistándote cuando llevemos toda una vida juntos.</p><p><br></p>
+                    
+                    <p>porque hace casi un año me di cuenta de que quería que fueras tú.</p><p><br></p>
+                    
+                    <p>y hoy, después de conocerte muchísimo más, después de vivir tantas cosas contigo y después de enamorarme todavía más de ti, sigo eligiéndote a ti.</p><p><br></p>
+                    
+                    <p>siempre a ti, mi amor.</p><p><br></p>
+                    
+                    <p>porque aquella noche de noviembre me enamoré de ti, pero desde entonces no ha pasado un solo día en el que haya dejado de hacerlo.</p><p><br></p>
+                    
+                    <p>te amo muchísimo, mi eneve preciosa.</p><p><br></p>
+                    
+                    <p>con todo el amor del mundo, emicici. ♡</p><p><br></p>
+                    
+                    <hr class="border-gray-400 my-6">
+                    
+                    <p class="text-lg opacity-80">notita: adivina la canción de la carta de hoy jeje, y por cierto, estás escuchando todas las canciones que yo escuché mientras escribía esto, me gustaría muchísimo y me daría mucha ilusión que las escucharas todas, porque cada una me acompañó mientras pensaba en ti y recordaba nuestra historia.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Audio Control -->
+    <button id="music-btn" onclick="toggleAudio()" class="music-btn fixed bottom-6 right-6 bg-[#d4b595] text-[#333] p-4 rounded-full z-50 hidden items-center justify-center border-2 border-[#111]">
+        <!-- Play/Pause SVG Icons -->
+        <svg id="icon-pause" class="w-6 h-6 hidden" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/>
+        </svg>
+        <svg id="icon-play" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
+        </svg>
+    </button>
+
+    <!-- Hidden Audio Player -->
+    <audio id="bg-audio"></audio>
+
+    <script>
+        // -- Configuration --
+        const songs = [
+            'cancion1.mp3', 
+            'cancion2.mp3', 
+            'cancion3.mp3', 
+            'cancion4.mp3', 
+            'cancion5.mp3', 
+            'cancion6.mp3'
+        ];
+        
+        let currentSongIndex = 0;
+        let isPlaying = false;
+        let opened = false;
+        
+        const audioEl = document.getElementById('bg-audio');
+        const iconPlay = document.getElementById('icon-play');
+        const iconPause = document.getElementById('icon-pause');
+        const musicBtn = document.getElementById('music-btn');
+
+        // -- Envelope Animation Logic --
+        function openEnvelope() {
+            if (opened) return;
+            opened = true;
+
+            // 1. Flip the envelope flap
+            document.getElementById('top-flap').classList.add('open');
+
+            // 2. Wait for flap animation, then hide envelope & show letter
+            setTimeout(() => {
+                const wrapper = document.getElementById('envelope-wrapper');
+                const letter = document.getElementById('letter-container');
+                
+                // Slide down envelope and fade out
+                wrapper.style.transform = 'translateY(100vh)';
+                wrapper.style.opacity = '0';
+
+                setTimeout(() => {
+                    wrapper.style.display = 'none';
+                    // Show letter
+                    letter.classList.remove('hidden');
+                    // Small delay to trigger CSS transition
+                    setTimeout(() => {
+                        letter.classList.remove('opacity-0');
+                        letter.classList.add('opacity-100');
+                        musicBtn.classList.remove('hidden');
+                        musicBtn.classList.add('flex');
+                    }, 50);
+                    
+                    // Start Music!
+                    startPlaylist();
+                }, 1000); // Wait for envelope to drop
+            }, 600); // Wait for flap to open
+        }
+
+        // -- Audio Logic --
+        function startPlaylist() {
+            if (songs.length === 0) return;
+            audioEl.src = songs[currentSongIndex];
+            
+            audioEl.play().then(() => {
+                isPlaying = true;
+                updateIcon();
+            }).catch(e => {
+                console.warn("Autoplay was prevented. User needs to manually click play.", e);
+                isPlaying = false;
+                updateIcon();
+            });
+        }
+
+        function toggleAudio() {
+            if (isPlaying) {
+                audioEl.pause();
+                isPlaying = false;
+            } else {
+                // If src is empty (not initialized yet)
+                if (!audioEl.src || audioEl.src.endsWith(window.location.pathname)) {
+                    audioEl.src = songs[currentSongIndex];
+                }
+                audioEl.play();
+                isPlaying = true;
+            }
+            updateIcon();
+        }
+
+        function updateIcon() {
+            if (isPlaying) {
+                iconPlay.classList.add('hidden');
+                iconPause.classList.remove('hidden');
+            } else {
+                iconPause.classList.add('hidden');
+                iconPlay.classList.remove('hidden');
+            }
+        }
+
+        // Move to the next song when current one finishes
+        audioEl.addEventListener('ended', () => {
+            currentSongIndex++;
+            if (currentSongIndex < songs.length) {
+                audioEl.src = songs[currentSongIndex];
+                audioEl.play().catch(e => console.error(e));
+            } else {
+                // Playlist finished. Reset to beginning but pause.
+                currentSongIndex = 0;
+                isPlaying = false;
+                updateIcon();
+            }
+        });
+    </script>
+</body>
+</html>
