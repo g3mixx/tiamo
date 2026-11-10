@@ -61,6 +61,7 @@
 
         .lined-paper p {
             margin: 0;
+            overflow-wrap: anywhere;
             min-height: 32px; /* Ensure empty lines maintain grid */
             padding-top: 2px; /* Visual alignment correction */
         }
@@ -72,23 +73,21 @@
             }
         }
 
-        /* Film Strip Styles */
+        /* Film Strip Styles
+           Móvil: centrada, sin float (el texto ocupa todo el ancho).
+           Escritorio (>=640px): flota a la derecha y el texto la rodea. */
         .film-strip-wrapper {
-            float: right;
-            width: 45%;
-            max-width: 140px;
-            margin-left: 16px;
-            margin-bottom: 16px;
-            margin-top: 8px;
+            width: min(200px, 65%);
+            margin: 8px auto 24px;
             position: relative;
             z-index: 10;
         }
-        
+
         @media (min-width: 640px) {
             .film-strip-wrapper {
-                width: 35%;
-                max-width: 160px;
-                margin-left: 24px;
+                float: right;
+                width: 160px;
+                margin: 8px 0 16px 24px;
             }
         }
 
@@ -96,25 +95,21 @@
             background-color: #1a1a1a;
             position: relative;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-            padding: 12% 8%;
+            padding: 20px 18px;
             display: flex;
             flex-direction: column;
             gap: 12px;
+            border: 1px solid #000;
+            border-radius: 2px;
         }
-        
+
         /* Film strip holes */
         .film-strip::before, .film-strip::after {
             content: "";
             position: absolute;
             top: 0; bottom: 0;
-            width: 6px;
-            background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 6px, #fff 6px, #fff 12px);
-        }
-        @media (min-width: 640px) {
-            .film-strip::before, .film-strip::after {
-                width: 8px;
-                background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 8px, #fff 8px, #fff 14px);
-            }
+            width: 8px;
+            background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 8px, #fff 8px, #fff 14px);
         }
         .film-strip::before { left: 4px; }
         .film-strip::after { right: 4px; }
@@ -244,21 +239,22 @@
                         </div>
 
 <!-- Film Strip Container -->
-<div class="film-strip rounded-sm border border-black z-10">
-    <!-- Photo Slots -->
-    <div class="photo-slot bg-[#1a1a1a] flex items-center justify-center overflow-hidden">
-        <img src="foto1.jpg" alt="Mensaje 1" class="w-full h-full object-contain rounded-sm">
-    </div>
-    <div class="photo-slot bg-[#1a1a1a] flex items-center justify-center overflow-hidden">
-        <img src="foto2.jpg" alt="Mensaje 2" class="w-full h-full object-contain rounded-sm">
-    </div>
-    <div class="photo-slot bg-[#1a1a1a] flex items-center justify-center overflow-hidden">
-        <img src="foto3.jpg" alt="Mensaje 3" class="w-full h-full object-contain rounded-sm">
-    </div>
-    <div class="photo-slot bg-[#1a1a1a] flex items-center justify-center overflow-hidden">
-        <img src="foto4.jpg" alt="Mensaje 4" class="w-full h-full object-contain rounded-sm">
-    </div>
-</div>
+                        <div class="film-strip">
+                            <div class="photo-slot bg-[#1a1a1a]">
+                                <img src="foto1.jpg" alt="Mensaje 1" class="w-full h-full object-contain rounded-sm">
+                            </div>
+                            <div class="photo-slot bg-[#1a1a1a]">
+                                <img src="foto2.jpg" alt="Mensaje 2" class="w-full h-full object-contain rounded-sm">
+                            </div>
+                            <div class="photo-slot bg-[#1a1a1a]">
+                                <img src="foto3.jpg" alt="Mensaje 3" class="w-full h-full object-contain rounded-sm">
+                            </div>
+                            <div class="photo-slot bg-[#1a1a1a]">
+                                <img src="foto4.jpg" alt="Mensaje 4" class="w-full h-full object-contain rounded-sm">
+                            </div>
+                        </div>
+                    </div><!-- /film-strip-wrapper (faltaba cerrar este div) -->
+
                     <p>hoy me dijiste algo que se quedó dando vueltas en mi cabeza, lo vine pensando todo el camino, me hiciste saber que últimamente no te has sentido tan amada como antes, que sientes que ya no me emociono de la misma manera, que ya no intento conquistarte, que he dejado de hacer algunas de esas pequeñas cosas que antes te hacían sentir tan especial, o que simplemente ya me vales keso, y siento muy feo que pienses que es así, porque si hay algo que siempre me importará es tu felicidad y la manera en la que te sientes conmigo.</p><p><br></p>
                     
                     <p>quiero empezar diciéndote que nunca tengas que preguntarte si todavía me emociona verte, si todavía me muero de ganas de besarte, si todavía me parece increíble que seas mi novia, si me vuelvo loco por ti, si me derrito por ti, porque la respuesta siempre será sí, mil veces sí, eres la mujer de mi vida, la divinidad hecha persona, la perfección hecha mujer, eres mi novia y yo tu novio, y no sabes lo feliz que me hace poder decir eso, y entiendo que no solo es importante que yo lo sepa, sino que tú lo sientas, porque de nada sirve que yo tenga todo este amor dentro de mí si no logro demostrártelo como te mereces.</p><p><br></p>
